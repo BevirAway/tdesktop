@@ -235,7 +235,7 @@ void ShowMessage(const QString &text) {
 	return true;
 }
 
-[[nodiscard]] base::weak_qptr<Ui::GenericBox> ShowAssertionChoiceBox(
+base::weak_qptr<Ui::GenericBox> ShowAssertionChoiceBox(
 		std::vector<LoginAssertion> assertions,
 		Fn<void(LoginResult)> submit,
 		Fn<void()> cancel) {
@@ -253,7 +253,7 @@ void ShowMessage(const QString &text) {
 			options.push_back(AssertionOptionText(assertions[i], i));
 		}
 		const auto selected = std::make_shared<bool>(false);
-		Ui::SingleChoiceBox(box, {
+		SingleChoiceBox(box, {
 			.title = tr::lng_passkey_cable_login_title(),
 			.options = options,
 			.initialSelection = -1,
