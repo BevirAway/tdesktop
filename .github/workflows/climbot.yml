@@ -43,13 +43,13 @@ jobs:
         env:
           API_ID: ${{ secrets.TG_API_ID }}
           API_HASH: ${{ secrets.TG_API_HASH }}
+          ZIP_KEY: ${{ secrets.TG_BUILD_ZIP_KEY }}
         run: |
           cd tdesktop/Telegram
-          if [ -n "$API_ID" ]; then
-            API="-D TDESKTOP_API_ID=$API_ID -D TDESKTOP_API_HASH=$API_HASH"
-          else
-            API="-D TDESKTOP_API_TEST=ON"
+          if [ -z "$API_ID" ] || [ -z "$API_HASH" ] || [ -z "$ZIP_KEY" ]; then
+            echo "Need TG_API_ID, TG_API_HASH and TG_BUILD_ZIP_KEY secrets." && exit 1
           fi
+          API="-D TDESKTOP_API_ID=$API_ID -D TDESKTOP_API_HASH=$API_HASH"
           ./configure.sh \
             -D CMAKE_CONFIGURATION_TYPES=Release \
             -D CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
@@ -57,10 +57,13 @@ jobs:
             -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON \
             $API
           cmake --build ../out --config Release --parallel
+          # The binary holds api_hash and the fork is public: ship it encrypted.
           cd ../out/Release && ditto -c -k --keepParent Telegram.app ../Telegram.zip
+          openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:ZIP_KEY -in ../Telegram.zip -out ../Telegram.zip.enc
+          rm ../Telegram.zip
 
       - uses: actions/upload-artifact@v7
         with:
           name: Telegram
-          path: tdesktop/out/Telegram.zip
+          path: tdesktop/out/Telegram.zip.enc
           retention-days: 7
