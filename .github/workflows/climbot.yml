@@ -7,7 +7,7 @@ on:
 
 jobs:
   macos:
-    runs-on: macos-latest
+    runs-on: macos-15-intel  # arm64 runners kept timing out in the queue (02.11)
     timeout-minutes: 360
     env:
       PREPARE_PATH: "Telegram/build/prepare/prepare.py"
