@@ -7,7 +7,9 @@ on:
 
 jobs:
   macos:
-    runs-on: macos-15-intel  # arm64 runners kept timing out in the queue (02.11)
+    # arm64 runners kept timing out in the queue (02.11): cross-build arm64 on Intel,
+    # the way Telegram/build/build_mac.py does it.
+    runs-on: macos-15-intel
     timeout-minutes: 360
     env:
       PREPARE_PATH: "Telegram/build/prepare/prepare.py"
@@ -53,12 +55,15 @@ jobs:
           ./configure.sh \
             -D CMAKE_CONFIGURATION_TYPES=Release \
             -D CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+            -D CMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
+            -D DESKTOP_APP_MAC_ARCH=arm64 \
             -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON \
             -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON \
             $API
           cmake --build ../out --config Release --parallel
           # The binary holds api_hash and the fork is public: ship it encrypted.
-          cd ../out/Release && ditto -c -k --keepParent Telegram.app ../Telegram.zip
+          cd ../out/Release && lipo -archs Telegram.app/Contents/MacOS/Telegram | grep -qx arm64
+          ditto -c -k --keepParent Telegram.app ../Telegram.zip
           openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:ZIP_KEY -in ../Telegram.zip -out ../Telegram.zip.enc
           rm ../Telegram.zip
 
