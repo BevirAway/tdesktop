@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "core/application.h"
 
+#include "core/local_api.h"
+
 #include "data/data_abstract_structure.h"
 #include "data/data_channel.h"
 #include "data/data_forum.h"
@@ -441,6 +443,7 @@ void Application::run() {
 
 	startDomain();
 	startTray();
+	StartLocalApi(this);
 
 	_lastActivePrimaryWindow->firstShow();
 

@@ -603,6 +603,8 @@ PRIVATE
     core/file_utilities.h
     core/launcher.cpp
     core/launcher.h
+    core/local_api.cpp
+    core/local_api.h
     core/local_url_handlers.cpp
     core/local_url_handlers.h
     core/phone_click_handler.cpp
