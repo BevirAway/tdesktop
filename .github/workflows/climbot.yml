@@ -7,9 +7,9 @@ on:
 
 jobs:
   macos:
-    # arm64 runners kept timing out in the queue (02.11): cross-build arm64 on Intel,
-    # the way Telegram/build/build_mac.py does it.
-    runs-on: macos-15-intel
+    # prepare.py expects an Apple Silicon host: on Intel libjxl gets -march=x86-64
+    # for the arm64 slice. macos-latest timed out in the queue on 02.11.
+    runs-on: macos-15
     timeout-minutes: 360
     env:
       PREPARE_PATH: "Telegram/build/prepare/prepare.py"
